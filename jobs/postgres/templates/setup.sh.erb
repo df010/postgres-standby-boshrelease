@@ -1,0 +1,16 @@
+#!/bin/bash
+#this script is invoked before pg start(/var/vcap/bosh/bin/monit start)
+/var/vcap/packages/sshpass/bin/sshpass -p"<%=p("databases.master.os_password")%>" ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o  PubkeyAuthentication=no <%=p("databases.master.os_user")%>@<%=p("databases.master.ip")%> bash -c "'
+#input you scirpts here
+#<%=p("databases.master.db_user")%>
+#<%=p("databases.master.db_password")%>
+#<%=p("databases.standby_password")%>
+#<%=p("databases.standby_name")%>
+#<%=p("databases.availability_zone")%>
+#<%=p("databases.availability_zone_for_sync")%>
+echo haha; 
+ls
+'"
+
+PGPASSWORD=<%=p("databases.standby_password")%>  /var/vcap/packages/postgres-9.4.2/bin/pg_basebackup -w -h <%=p("databases.master.ip")%> -R -D /var/vcap/store/postgres-9.4.2/ -P -U replication --xlog-method=stream
+

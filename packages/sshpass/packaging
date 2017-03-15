@@ -1,0 +1,6 @@
+set -e
+tar xzf sshpass/sshpass-1.05.tar.gz -C sshpass/
+cd sshpass/sshpass-1.05
+./configure --prefix=${BOSH_INSTALL_TARGET}
+make
+make install

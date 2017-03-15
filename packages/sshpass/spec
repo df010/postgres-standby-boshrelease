@@ -1,0 +1,6 @@
+---
+name: sshpass 
+
+dependencies:
+files:
+- sshpass/**/*
