@@ -1,5 +1,0 @@
-name: postgres-standby-boshrelease
-blobstore:
-  provider: local
-  options:
-    blobstore_path: "/tmp/blobs"
