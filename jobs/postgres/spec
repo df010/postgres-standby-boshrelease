@@ -5,10 +5,9 @@ description: "The Postgres server provides a single instance Postgres database t
 
 templates:
   postgres_ctl.erb: bin/postgres_ctl
-  postgres_start.sh.erb: bin/postgres_start.sh
   postgresql.conf.erb: config/postgresql.conf
-  pg_hba.conf.erb: config/pg_hba.conf
   setup.sh.erb: bin/setup.sh
+  update_pg.sh.erb: bin/update_pg.sh
 
 packages:
 - common
