@@ -1,6 +1,7 @@
 #!/bin/bash
 #this script is invoked before pg start(/var/vcap/bosh/bin/monit start)
 TESTSUCCESS=0
+MYAPPLICATION_NAME="<%=p("databases.current_availability_zone")%>"
 for retry in {1..10}; do
     if $PACKAGE_DIR/bin/psql -d 'postgresql://?password=<%=p("databases.replication_password")%>&replication=1' \
 			     -U <%=p("databases.replication_user")%> \
@@ -10,19 +11,21 @@ for retry in {1..10}; do
 	break
     fi
     TESTSUCCESS=1
-    /var/vcap/packages/sshpass/bin/sshpass -p"<%=p("databases.master.os_password")%>" ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o  PubkeyAuthentication=no <%=p("databases.master.os_user")%>@<%=p("databases.master.ip")%> bash -c "'
+    if echo "<%=p("databases.availability_zones")%>"| grep -q "^<%=p("databases.current_availability_zone")%>,"
+    then
+	/var/vcap/packages/sshpass/bin/sshpass -p"<%=p("databases.master.os_password")%>" scp -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o  PubkeyAuthentication=no $JOB_DIR/bin/update_pg.sh <%=p("databases.master.os_user")%>@<%=p("databases.master.ip")%>:/tmp/update_pg.sh
+	/var/vcap/packages/sshpass/bin/sshpass -p"<%=p("databases.master.os_password")%>" ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o  PubkeyAuthentication=no <%=p("databases.master.os_user")%>@<%=p("databases.master.ip")%> bash -c "'
 #input you scirpts here
 #<%=p("databases.replication_password")%>
 #<%=p("databases.replication_user")%>
 #<%=p("databases.current_availability_zone")%>
 #<%=p("databases.availability_zones")%>
 #<%=p("databases.ips")%>
-echo haha; 
-ls
+bash /tmp/update_pg.sh 
 '"
+    fi
     sleep 2
 done
-
 
 if [ $TESTSUCCESS -eq 1 ]
 then
@@ -30,6 +33,14 @@ then
     exit 1;
 done
 
+
+$PACKAGE_DIR/bin/pg_basebackup -w \
+			       -d "postgresql://?password=<%=p("databases.replication_password")%>&replication=1&application_name=$MYAPPLICATION_NAME" \
+			       -h <%=p("databases.master.ip")%> -R\
+			       -D $DATA_DIR -P\
+			       -U <%=p("databases.replication_user")%> --xlog-method=stream
+sed -i '/synchronous_standby_names/d' $DATA_DIR/postgresql.auto.conf
+echo "hot_standby = 'on'" >> $DATA_DIR/postgresql.conf
 #PGPASSWORD=<%=p("databases.replication_password")%>  /var/vcap/packages/postgres-9.4.2/bin/pg_basebackup -w -h <%=p("databases.master.ip")%> -R -D /var/vcap/store/postgres-9.4.2/ -P -U replication --xlog-method=stream
 
 
