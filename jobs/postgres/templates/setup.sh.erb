@@ -16,16 +16,20 @@ for retry in {1..10}; do
 #<%=p("databases.replication_user")%>
 #<%=p("databases.current_availability_zone")%>
 #<%=p("databases.availability_zones")%>
+#<%=p("databases.ips")%>
 echo haha; 
 ls
 '"
     sleep 2
 done
 
+
 if [ $TESTSUCCESS -eq 1 ]
 then
     echo "INIT FAILED" >&2
     exit 1;
 done
-#PGPASSWORD=<%=p("databases.standby_password")%>  /var/vcap/packages/postgres-9.4.2/bin/pg_basebackup -w -h <%=p("databases.master.ip")%> -R -D /var/vcap/store/postgres-9.4.2/ -P -U replication --xlog-method=stream
+
+#PGPASSWORD=<%=p("databases.replication_password")%>  /var/vcap/packages/postgres-9.4.2/bin/pg_basebackup -w -h <%=p("databases.master.ip")%> -R -D /var/vcap/store/postgres-9.4.2/ -P -U replication --xlog-method=stream
+
 
