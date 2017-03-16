@@ -41,14 +41,10 @@ properties:
     description: "The os user for master postgres server"
   databases.master.os_password:
     description: "The os password for master postgres server"
-  databases.master.db_user:
-    description: "The database user for master postgres server"
-  databases.master.db_password:
-    description: "The database password for master postgres server"
-  databases.master.standby_name:
-    description: "Name for this standby"
-  databases.master.standby_password:
-    description: "Password for this standby"
+  databases.replication_user:
+    description: "User used to replicate data from postgres master server"
+  databases.replication_password:
+    description: "Password used to replicate data from postgres master server"
   databases.current_availability_zone:
     description: "Availability zone for this job instance"
   databases.availability_zones:
