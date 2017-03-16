@@ -6,9 +6,10 @@
 #<%=p("databases.replication_user")%>
 #<%=p("databases.current_availability_zone")%>
 #<%=p("databases.availability_zones")%>
+#<%=p("databases.ips")%>
 echo haha; 
 ls
 '"
 
-#PGPASSWORD=<%=p("databases.standby_password")%>  /var/vcap/packages/postgres-9.4.2/bin/pg_basebackup -w -h <%=p("databases.master.ip")%> -R -D /var/vcap/store/postgres-9.4.2/ -P -U replication --xlog-method=stream
+#PGPASSWORD=<%=p("databases.replication_password")%>  /var/vcap/packages/postgres-9.4.2/bin/pg_basebackup -w -h <%=p("databases.master.ip")%> -R -D /var/vcap/store/postgres-9.4.2/ -P -U replication --xlog-method=stream
 

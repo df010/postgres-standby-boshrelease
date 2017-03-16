@@ -49,3 +49,5 @@ properties:
     description: "Availability zone for this job instance"
   databases.availability_zones:
     description: "All the avilability zones the job will be installed,use , as seperator, and put it in order(sync will be done by the sequence of this input)"
+  databases.ips:
+    description: "IPs of instances of this job"
