@@ -5,11 +5,7 @@ job_types:
   - postgres
   manifest:
     databases:
-      db_scheme: scheme1
       port: 12345
-      address:  127.0.0.1
-      databases: []
-      roles: []
       max_connections: 100
       log_line_prefix: "%m: "
       collect_statement_statistics: false
@@ -34,11 +30,7 @@ job_types:
   - postgres
   manifest:
     databases:
-      db_scheme: scheme1
       port: 12345
-      address:  127.0.0.1
-      databases: []
-      roles: []
       max_connections: 100
       log_line_prefix: "%m: "
       collect_statement_statistics: false
@@ -61,7 +53,7 @@ job_types:
     default: 2
 name: postgres-standby
 description: Standby Postgres for Database Backup
-product_version: 1.0.56
+product_version: 1.0.57
 #stemcell_version: 3146.9
 stemcell_version: 3263
 metadata_version: '1.8'
