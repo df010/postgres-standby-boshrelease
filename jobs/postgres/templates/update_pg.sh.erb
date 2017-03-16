@@ -1,0 +1,34 @@
+#!/bin/bash
+PACKAGE_DIR=/var/vcap/packages/postgres-9.4.2
+JOB_DIR=/var/vcap/jobs/postgres
+PACKAGE_DIR_OLD=/var/vcap/packages/postgres
+
+STORE_DIR=/var/vcap/store
+DATA_DIR=$STORE_DIR/postgres-9.4.2
+DATA_DIR_OLD=$STORE_DIR/postgres
+
+RUN_DIR=/var/vcap/sys/run/postgres
+LOG_DIR=/var/vcap/sys/log/postgres
+
+# external_pid_file in postgresql.conf takes care of
+# overwriting $PIDFILE with actual DB server pid
+PIDFILE=$RUN_DIR/postgres.pid
+
+source /var/vcap/packages/common/utils.sh
+
+$PACKAGE_DIR/bin/psql -p 2544 postgres <<EOF
+alter system set wal_level = hot_standby;
+alter system set max_wal_senders = 5;
+alter system set wal_keep_segments = 32;
+alter system set synchronous_standby_names = <%=p("databases.availability_zones")%>;
+CREATE ROLE replication WITH REPLICATION PASSWORD '<%=p("databases.replication_password")%>' LOGIN;
+EOF
+
+cat >> $JOB_DIR/config/pg_hba.conf <<EOF
+<% p("databases.ips", []).each do |ip| %>
+host replication     <%=p("databases.replication_user")%>     <%= ip%>        md5
+<% end %>
+EOF
+
+$JOB_DIR/bin/postgres_ctl stop
+#$JOB_DIR/bin/postgres_ctl start

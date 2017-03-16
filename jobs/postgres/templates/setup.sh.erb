@@ -1,6 +1,16 @@
 #!/bin/bash
 #this script is invoked before pg start(/var/vcap/bosh/bin/monit start)
-/var/vcap/packages/sshpass/bin/sshpass -p"<%=p("databases.master.os_password")%>" ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o  PubkeyAuthentication=no <%=p("databases.master.os_user")%>@<%=p("databases.master.ip")%> bash -c "'
+TESTSUCCESS=0
+for retry in {1..10}; do
+    if $PACKAGE_DIR/bin/psql -d 'postgresql://?password=<%=p("databases.replication_password")%>&replication=1' \
+			     -U <%=p("databases.replication_user")%> \
+			     -h <%=p("databases.master.os_password")%> \
+			     -c 'IDENTIFY_SYSTEM'
+    then
+	break
+    fi
+    TESTSUCCESS=1
+    /var/vcap/packages/sshpass/bin/sshpass -p"<%=p("databases.master.os_password")%>" ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=password -o  PubkeyAuthentication=no <%=p("databases.master.os_user")%>@<%=p("databases.master.ip")%> bash -c "'
 #input you scirpts here
 #<%=p("databases.replication_password")%>
 #<%=p("databases.replication_user")%>
@@ -10,6 +20,16 @@
 echo haha; 
 ls
 '"
+    sleep 2
+done
+
+
+if [ $TESTSUCCESS -eq 1 ]
+then
+    echo "INIT FAILED" >&2
+    exit 1;
+done
 
 #PGPASSWORD=<%=p("databases.replication_password")%>  /var/vcap/packages/postgres-9.4.2/bin/pg_basebackup -w -h <%=p("databases.master.ip")%> -R -D /var/vcap/store/postgres-9.4.2/ -P -U replication --xlog-method=stream
+
 

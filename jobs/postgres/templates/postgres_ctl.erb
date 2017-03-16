@@ -25,7 +25,7 @@ case "$1" in
       su - vcap -c "$PACKAGE_DIR_OLD/bin/pg_ctl stop -m fast -w -D $DATA_DIR_OLD"
       set -e
     fi
-    $JOB_DIR/bin/setup.sh 
+    source $JOB_DIR/bin/setup.sh 
 
     pid_guard $PIDFILE "PostgreSQL"
 
@@ -47,8 +47,7 @@ case "$1" in
       mkdir -p $LOG_DIR
       chown vcap:vcap $LOG_DIR
     fi
-
-    exec $JOB_DIR/bin/postgres_start.sh
+    su - vcap -c "$PACKAGE_DIR/bin/pg_ctl start -w -D $DATA_DIR -l \"$DATA_DIR/pg_log/startup.log\""
     ;;
 
   stop)
